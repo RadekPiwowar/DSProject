@@ -1,1 +1,51 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+
+
+#import of data from the Kaggle files
+Processed = pd.read_csv(filepath_or_buffer='/kaggle/input/stock-exchange-data/indexProcessed.csv')
+Data = pd.read_csv(filepath_or_buffer='/kaggle/input/stock-exchange-data/indexData.csv')
+Info = pd.read_csv(filepath_or_buffer='/kaggle/input/stock-exchange-data/indexInfo.csv')
+
+
+#adding column: difference between open and close
+Data['Difference'] = Data['Close'] - Data['Open']
+Data
+
+
+
+
+#description statistics
+desc = Data.describe()
+desc
+
+
+#adding day of week column
+import datetime
+t = pd.to_datetime(Data['Date'], yearfirst = True)
+DayPrep = [int(x) for x in t.dt.dayofweek]
+type(DayPrep)
+DatePrep = pd.to_datetime(Data['Date'])
+
+Data['day_of_week'] = DatePrep.dt.day_name()
+
+
+#basic visualization
+
+import seaborn as sns
+
+sns.scatterplot(x='Date', y='Close', hue='Day_of_Week', style=None, size=None, data=Data)
 
