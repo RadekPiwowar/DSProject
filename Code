@@ -32,6 +32,10 @@ Data
 desc = Data.describe()
 desc
 
+#Check and remove NaN 
+Data.dropna(inplace=True)
+Data
+
 
 #adding day of week column
 import datetime
@@ -41,6 +45,50 @@ type(DayPrep)
 DatePrep = pd.to_datetime(Data['Date'])
 
 Data['day_of_week'] = DatePrep.dt.day_name()
+
+#Changing 'Date' column for  pandas series
+Data['Date'] = t
+type(Data['Date'])
+
+#basic visualization
+
+import seaborn as sns
+
+sns.set_theme(style = 'darkgrid')
+
+#line plot showing change over time for different stock exchanges
+sns.relplot(x='Date', y='Close', hue='Index', style=None, size=None, kind='line', data=Data)
+
+#Preparation for a similar chart, but limited to NY, Hong Kong and Tokyo Stock Exchange for better visibility
+stocks = ('NYA', 'HSI', 'N225')
+NYCNJP = Data[Data['Index'].isin(stocks)]
+
+sns.relplot(x='Date', y='Close', hue='Index', style=None, size=None, kind='line', data=NYCNJP)
+
+#Distribution for each weekday
+sns.catplot(data=Data, kind='bar', x="day_of_week", y='Close', aspect=2, palette='pastel')
+
+#Distribution for each weekday, but difference between open and close
+sns.catplot(data=Data, kind='bar', x="day_of_week", y='Difference', aspect=2, palette='pastel')
+
+#Preparing ML training sets:
+#Importing necessary libraries
+from sklearn.model_selection import train_test_split
+
+#Preparing data for ML modelling
+columns = ['Date','Index', 'Difference']
+
+#Setting up X and y variables
+X = Data.loc[:,columns]
+y = Data.loc[:,'Close']
+X_train, X_test, y_train, y_test = train_test_split (X,y, test_size = 0.3, random_state = 0)
+X_train_under, X_test_under, y_train_under, y_test_under = train_test_split (X,y, test_size = 0.3, random_state = 0)
+
+from sklearn.linear_model import LinearRegression
+lre=LinearRegression()
+lre.fit(X_train[['Difference']], y_train)
+print('Score on testing set is ' + str(lre.score(X_test[['Difference']], y_test)))
+print('Score on training set is ' + str(lre.score(X_train[['Difference']], y_train)))
 
 
 #basic visualization
